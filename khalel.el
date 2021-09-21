@@ -124,6 +124,12 @@ When set to nil then it will be guessed."
   :group 'khalel
   :type 'string)
 
+(defcustom khalel-import-format-string "* {title} {cancelled}\n\ :PROPERTIES:\n:CALENDAR: {calendar}\n\ :LOCATION: {location}\n\ :ID: {uid}\n\ :END:\n\ When: <{start-date-long} {start-time}>-<{end-date-long} {end-time}>\n\ Description: {description}\nURL: {url}\nOrganizer: {organizer}\n\n\ [[elisp:(khalel-edit-calendar-event)][Edit this event]]\ [[elisp:(progn (khalel-run-vdirsyncer) (khalel-import-upcoming-events))]\ [Sync and update all]]\n"
+  "The format for importing a khal calendar entry as an Org item.
+
+See the khal manpage or https://khal.readthedocs.io/en/latest/usage.html."
+  :group 'khalel
+  :type 'string)
 
 ;;;; Commands
 
@@ -151,16 +157,7 @@ alarms or settings for repeating events."
                      (executable-find "khal")))
        (dst (generate-new-buffer "khalel-output")))
     (call-process khal-bin nil dst nil "list" "--format"
-                  "* {title} {cancelled}\n\
-:PROPERTIES:\n:CALENDAR: {calendar}\n\
-:LOCATION: {location}\n\
-:ID: {uid}\n\
-:END:\n\
-When: <{start-date-long} {start-time}>-<{end-date-long} {end-time}>\n\
-Description: {description}\nURL: {url}\nOrganizer: {organizer}\n\n\
-[[elisp:(khalel-edit-calendar-event)][Edit this event]]\
-    [[elisp:(progn (khalel-run-vdirsyncer) (khalel-import-upcoming-events))]\
-[Sync and update all]]\n"
+                  khalel-import-format-string
                   "--day-format" ""
                   "--once" "today" khalel-import-time-delta)
     (save-excursion
