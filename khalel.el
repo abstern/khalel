@@ -45,7 +45,6 @@
 ;;  - consider adding the import org file to your org agenda to show upcoming events there
 ;;
 ;;; Code:
-
 ;;;; Requirements
 
 (require 'org)
@@ -184,6 +183,11 @@ show up there.\n\n")
           (goto-char (point-min))
           (while (re-search-forward "^\\(When:.*?\\) \\(>-<.*\\) >" nil t)
             (replace-match "\\1\\2>" nil nil))
+          (goto-char (point-min))
+          (while (re-search-forward "^:LOCATION: " nil t)
+            (save-match-data
+              (while (looking-at "\\(.*\\)\n\\([^:]\\)")
+                (replace-match "\\1 \\2" nil nil))))
           (write-file khalel-import-org-file khalel-import-org-file-confirm-overwrite)
           (message "Imported %d future events from khal into %s"
                    (length (org-map-entries nil nil nil))
