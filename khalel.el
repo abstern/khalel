@@ -155,10 +155,22 @@ alarms or settings for repeating events."
        (khal-bin (or khalel-khal-command
                      (executable-find "khal")))
        (dst (generate-new-buffer "khalel-output")))
-    (call-process khal-bin nil dst nil "list" "--format"
-                  khalel-import-format-string
-                  "--day-format" ""
-                  "--once" "today" khalel-import-time-delta)
+    (if (and (boundp 'org-starting-day) org-starting-day)
+	(let
+	    ((khal-start-day (calendar-gregorian-from-absolute org-starting-day)))
+	  (call-process khal-bin nil dst nil "list" "--format"
+                      khalel-import-format-string
+                      "--day-format" ""
+                      "--once" (format "%d-%d-%d"
+				       (calendar-extract-year khal-start-day)
+				       (calendar-extract-month khal-start-day)
+				       (calendar-extract-day khal-start-day))
+		      (format "%dd" (org-agenda-span-to-ndays (buffer-local-value 'org-agenda-current-span (get-buffer "*Org Agenda*"))))
+		      ))
+      (call-process khal-bin nil dst nil "list" "--format"
+                    khalel-import-format-string
+                    "--day-format" ""
+                    "--once" "today" khalel-import-time-delta))
     (save-excursion
       (with-current-buffer dst
         ;; make buffer writeable
